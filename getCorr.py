@@ -13,6 +13,15 @@ mpl.rcParams['font.sans-serif'] = ['SimHei']  # 指定默认字体
 mpl.rcParams['axes.unicode_minus'] = False  # 解决保存图像是负号'-'显示为方块的问题
 
 
+def sma(df, window=10):
+    """
+    Wrapper function to estimate SMA.
+    :param df: a pandas DataFrame.
+    :param window: the rolling window.
+    :return: a pandas DataFrame with the time-series min over the past 'window' days.
+    """
+    return df.rolling(window).mean()
+
 # 输入是一DataFrame，每一列是一支股票在每一日的价格
 def find_cointegrated_pairs(dataframe):
     # 得到DataFrame长度
@@ -82,7 +91,7 @@ def find_OLS_pairs(dataframe):
             plt.show()
 
 #文件路径
-industryFilePath = "D:\\inputData\\industry.xls"
+industryFilePath = "D:\\inputData\\industry2.xls"
 rbFilePath = "D:\\inputData\\rb.xls"
 hcFilePath = "D:\\inputData\\hc.xls"
 
@@ -92,6 +101,7 @@ rbDf = pd.read_excel(rbFilePath, sheetname = 0, skiprows=[1], index_col=0).dropn
 hcDf = pd.read_excel(hcFilePath, sheetname = 0, skiprows=[1], index_col=0).dropna()
 
 inputData = pd.concat([industryDf, rbDf.loc[industryDf.index], hcDf.loc[industryDf.index]], axis=1).dropna()
+inputData = sma(inputData, 30).dropna()
 print(inputData)
 
 #获得价差
