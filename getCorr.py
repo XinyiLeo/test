@@ -102,6 +102,10 @@ hcDf = pd.read_excel(hcFilePath, sheetname = 0, skiprows=[1], index_col=0).dropn
 
 inputData = pd.concat([industryDf, rbDf.loc[industryDf.index], hcDf.loc[industryDf.index]], axis=1).dropna()
 inputData = sma(inputData, 30).dropna()
+#过滤月初的日期
+indexDate = inputData.index
+indexDate = [date for date in indexDate if str(date.day) == '1']
+inputData = inputData.loc[indexDate]
 print(inputData)
 
 #获得价差
