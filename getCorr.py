@@ -12,6 +12,15 @@ from pylab import mpl
 mpl.rcParams['font.sans-serif'] = ['SimHei']  # 指定默认字体
 mpl.rcParams['axes.unicode_minus'] = False  # 解决保存图像是负号'-'显示为方块的问题
 
+def get_average_same_index(df):
+    for i in range(0, len(df.index)-1):
+        if(df.index[i] == df.index[i+1]):
+            df.iloc[i+1,1] = (df.iloc[i,0]*df.iloc[i,1] + df.iloc[i+1,0]*df.iloc[i+1,1])/(df.iloc[i,0]+df.iloc[i+1,0])
+            #df = df.drop([df.index[i]])
+    df['date'] = df.index
+    df = df.drop_duplicates(subset='date', keep='last')
+    return df
+
 
 def sma(df, window=10):
     """
@@ -91,21 +100,25 @@ def find_OLS_pairs(dataframe):
             plt.show()
 
 #文件路径
-industryFilePath = "D:\\inputData\\industry2.xls"
-rbFilePath = "D:\\inputData\\rb.xls"
-hcFilePath = "D:\\inputData\\hc.xls"
+industryFilePath = "D:\\inputData\\steel0627.xls"
+rbFilePath = "D:\\inputData\\rb0627.xls"
+hcFilePath = "D:\\inputData\\hc0627.xls"
+znFilePath = "D:\\inputData\\zn0627.xls"
 
 #获取数据
-industryDf = pd.read_excel(industryFilePath, sheetname = 0, skiprows=[0], index_col=0).dropna()
+industryDf = pd.read_excel(industryFilePath, sheetname = 2, skiprows=[0], index_col=0).dropna()
 rbDf = pd.read_excel(rbFilePath, sheetname = 0, skiprows=[1], index_col=0).dropna()
 hcDf = pd.read_excel(hcFilePath, sheetname = 0, skiprows=[1], index_col=0).dropna()
+znDf = pd.read_excel(znFilePath, sheetname = 0, skiprows=[1], index_col=0).dropna()
+print(industryDf.index, rbDf.index)
+#industryDf = get_average_same_index(industryDf)
 
-inputData = pd.concat([industryDf, rbDf.loc[industryDf.index], hcDf.loc[industryDf.index]], axis=1).dropna()
-inputData = sma(inputData, 30).dropna()
+inputData = pd.concat([industryDf, rbDf.loc[industryDf.index], hcDf.loc[industryDf.index], znDf.loc[industryDf.index]], axis=1).dropna()
+#inputData = sma(inputData, 30).dropna()
 #过滤月初的日期
-indexDate = inputData.index
-indexDate = [date for date in indexDate if str(date.day) == '1']
-inputData = inputData.loc[indexDate]
+# indexDate = inputData.index
+# indexDate = [date for date in indexDate if str(date.day) == '1']
+# inputData = inputData.loc[indexDate]
 print(inputData)
 
 #获得价差
